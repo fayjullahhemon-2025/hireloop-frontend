@@ -42,13 +42,13 @@ export function Navbar() {
 
         <div className="hidden items-center gap-4 md:flex">
           <Link
-            href="#signin"
+            href="/sign-in"
             className="text-sm font-medium text-violet-400 transition-colors hover:text-violet-300"
           >
             Sign In
           </Link>
           <Link
-            href="#get-started"
+            href="/sign-up"
             className="rounded-md bg-violet-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-violet-500"
           >
             Get Started
