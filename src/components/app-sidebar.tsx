@@ -36,10 +36,11 @@ export function DashboardSidebar() {
             { title: 'Settings', href: `/Settings/admin`, icon: LucideSettings }
         ],
         recruiter: [
-            { title: 'Dashboard', href: `/Dashboard/recruiter`, icon: LucideLayoutDashboard },
-            { title: 'Manage Jobs', href: `/Manage-Jobs/recruiter`, icon: LucideBriefcase },
-            { title: 'Applications', href: `/Applications/recruiter`, icon: LucideFileText },
-            { title: 'Settings', href: `/Settings/recruiter`, icon: LucideSettings }
+            { title: 'Dashboard', href: `/dashboard/recruiter`, icon: LucideLayoutDashboard },
+            { title: 'Add Jobs', href: `/dashboard/recruiter/add-jobs`, icon: LucideBriefcase },
+            { title: 'Manage Jobs', href: `/dashboard/Manage-Jobs/recruiter`, icon: LucideBriefcase },
+            { title: 'Applications', href: `/dashboard/recruiter/Applications`, icon: LucideFileText },
+            { title: 'Settings', href: `/dashboard/recruiter/Settings`, icon: LucideSettings }
         ]
     };
     return (

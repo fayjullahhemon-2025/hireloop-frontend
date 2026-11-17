@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, LogOut, Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -20,13 +20,13 @@ const navLinks = [
   { label: "Companies", href: "#companies" },
   { label: "Pricing", href: "#pricing" },
 ];
-
+type roleType = 'admin' | 'seeker' | 'recruiter'
 export function Navbar() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const { data: session, isPending } = useSession();
   const user = session?.user;
-
+  const role = user?.role as roleType
   async function handleLogout() {
     await signOut();
     router.push("/");
@@ -44,20 +44,35 @@ export function Navbar() {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="min-w-56 rounded-lg bg-zinc-900 text-white ring-white/10"
+        className="min-w-56 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-100 shadow-xl"
       >
         <div className="px-2 py-1.5">
-          <p className="truncate text-sm font-medium">{user.name}</p>
+          <p className="truncate text-sm font-medium text-zinc-200">{user.name}</p>
           <p className="truncate text-xs text-zinc-400">{user.email}</p>
         </div>
-        <DropdownMenuSeparator className="bg-white/10" />
+
+        <DropdownMenuSeparator className="bg-zinc-800" />
+
+        <DropdownMenuItem
+
+          className="cursor-pointer "
+        >
+          <Link
+            href={`/dashboard/${role}`}
+            className="flex items-center gap-2 w-full "
+          >
+            <LayoutDashboard />
+            <span >Dashboard</span>
+          </Link>
+        </DropdownMenuItem>
+
         <DropdownMenuItem
           variant="destructive"
           onClick={handleLogout}
-          className="cursor-pointer text-red-400 focus:bg-red-500/10 focus:text-red-300"
+          className="cursor-pointer text-red-400 focus:bg-red-500/10 focus:text-red-300 data-[highlighted]:bg-red-500/10 data-[highlighted]:text-red-300"
         >
-          <LogOut />
-          Log out
+          <LogOut className="h-4 w-4" />
+          <span>Log out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
