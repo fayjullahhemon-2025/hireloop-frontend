@@ -222,7 +222,7 @@ const ManageJobsPage = async () => {
                     <p className="text-xs text-zinc-500">Posted 3w ago</p>
                   </TableCell>
                   <TableCell className="px-4 py-3">
-                    <JobActions />
+                    <JobActions jobId={job._id} />
                   </TableCell>
                 </TableRow>
               );
