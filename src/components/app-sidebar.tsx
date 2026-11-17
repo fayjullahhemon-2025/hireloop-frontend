@@ -38,7 +38,7 @@ export function DashboardSidebar() {
         recruiter: [
             { title: 'Dashboard', href: `/dashboard/recruiter`, icon: LucideLayoutDashboard },
             { title: 'Add Jobs', href: `/dashboard/recruiter/add-jobs`, icon: LucideBriefcase },
-            { title: 'Manage Jobs', href: `/dashboard/Manage-Jobs/recruiter`, icon: LucideBriefcase },
+            { title: 'Manage Jobs', href: `/dashboard/recruiter/manage-jobs/`, icon: LucideBriefcase },
             { title: 'Applications', href: `/dashboard/recruiter/Applications`, icon: LucideFileText },
             { title: 'Settings', href: `/dashboard/recruiter/Settings`, icon: LucideSettings }
         ]

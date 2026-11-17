@@ -23,6 +23,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { createJobs } from "@/lib/actions/jobs";
+import { useSession } from "@/lib/auth-client";
 
 const jobTypes = ["Full-time", "Part-time", "Contract", "Internship"] as const;
 
@@ -61,7 +62,8 @@ export default function AddJobsPage() {
     const [frequency, setFrequency] = useState<string>("per hour");
     const [remoteWork, setRemoteWork] = useState(false);
     const [pending, setPending] = useState(false);
-
+    const { data: session, isPending } = useSession()
+    console.log(session)
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         setPending(true);
