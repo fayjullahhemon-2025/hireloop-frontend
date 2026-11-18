@@ -7,3 +7,8 @@ export const getJobs = async () => {
 };
 
 
+export const getJobById = async (id: string) => {
+    const res = await fetch(`${BASE_URL}/jobs/${id}`);
+    const data = res.json();
+    return data;
+};

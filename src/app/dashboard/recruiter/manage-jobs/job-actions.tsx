@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { deleteJobs } from "@/lib/actions/jobs";
+import Link from "next/link";
 
 export function JobActions({ jobId }: { jobId?: string }) {
   const router = useRouter();
@@ -108,7 +109,7 @@ export function JobActions({ jobId }: { jobId?: string }) {
         <DropdownMenuContent align="end" className="w-40">
           <DropdownMenuItem>
             <Eye className="size-4" />
-            View Details
+            <Link href={`/dashboard/recruiter/manage-jobs/${jobId}`} >View Details</Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <Pencil className="size-4" />
