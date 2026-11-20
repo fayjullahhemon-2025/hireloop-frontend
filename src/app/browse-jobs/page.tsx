@@ -1,21 +1,16 @@
 import { cn } from "cn";
-import type { LucideIcon } from "lucide-react";
 import {
   Bookmark,
   Briefcase,
   ChevronLeft,
   ChevronRight,
-  Code2,
-  Database,
   DollarSign,
-  LineChart,
-  Palette,
   Zap,
 } from "lucide-react";
+import Link from "next/link";
 import { Suspense } from "react";
 import { Navbar } from "@/components/navbar";
 import SearchBar from "@/components/SearchBar";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -25,6 +20,14 @@ import {
 } from "@/components/ui/select";
 import { getJobs } from "@/lib/api/jobs";
 import type { Job } from "@/types";
+import { type FilterOption, JobFilters } from "./job-filters";
+import {
+  CATEGORY_META,
+  FALLBACK_META,
+  formatSalary,
+  isHotJob,
+  PILL_CLASSES,
+} from "./shared";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -37,99 +40,78 @@ const JOB_TYPE_FILTERS = [
 
 const SORT_OPTIONS = ["Most Recent", "Highest Salary", "Best Match"] as const;
 
-const CATEGORY_META: Record<string, { icon: LucideIcon; classes: string }> = {
-  Engineering: { icon: Code2, classes: "bg-blue-500/15 text-blue-400" },
-  "Engineering & Tech": {
-    icon: Code2,
-    classes: "bg-blue-500/15 text-blue-400",
-  },
-  Design: { icon: Palette, classes: "bg-orange-500/15 text-orange-400" },
-  Data: { icon: Database, classes: "bg-emerald-500/15 text-emerald-400" },
-  Marketing: { icon: LineChart, classes: "bg-cyan-500/15 text-cyan-400" },
-  Product: { icon: Briefcase, classes: "bg-teal-500/15 text-teal-400" },
-  Sales: { icon: DollarSign, classes: "bg-indigo-500/15 text-indigo-400" },
-};
-
-const FALLBACK_META = {
-  icon: Briefcase,
-  classes: "bg-violet-500/15 text-violet-400",
-};
-
-function formatSalary(job: Job) {
-  if (job.minSalary == null && job.maxSalary == null) return null;
-  const part = (value?: number) => {
-    if (value == null) return "—";
-    return value >= 1000 ? `$${Math.round(value / 1000)}K` : `$${value}`;
-  };
-  return `${part(job.minSalary)} - ${part(job.maxSalary)}`;
-}
-
-const PILL_CLASSES =
-  "inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-zinc-300";
-
 function JobCard({ job }: { job: Job }) {
   const meta = CATEGORY_META[job.jobCategory] ?? FALLBACK_META;
   const Icon = meta.icon;
   const salary = formatSalary(job);
-  const isHot = (job.applicantCount ?? 0) >= 50;
+  const isHot = isHotJob(job);
 
-  return (
-    <article className="rounded-xl border border-white/10 bg-zinc-900/60 p-4 transition-colors hover:border-white/20 hover:bg-zinc-900">
-      <div className="flex gap-4">
-        <span
-          className={cn(
-            "flex size-11 shrink-0 items-center justify-center rounded-lg",
-            meta.classes,
-          )}
-        >
-          <Icon className="size-5" />
-        </span>
+  const content = (
+    <>
+      <span
+        className={cn(
+          "flex size-11 shrink-0 items-center justify-center rounded-lg",
+          meta.classes,
+        )}
+      >
+        <Icon className="size-5" />
+      </span>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h3 className="truncate text-sm font-semibold text-white">
-                {job.jobTitle}
-              </h3>
-              <p className="mt-1 truncate text-xs text-zinc-500">
-                {job.companyName} • {job.jobLocation}
-                {job.remoteWork ? " (Remote)" : ""}
-              </p>
-            </div>
-            <button
-              type="button"
-              aria-label="Save job"
-              className="-m-1.5 shrink-0 rounded-md p-1.5 text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-300"
-            >
-              <Bookmark className="size-4" />
-            </button>
-          </div>
+      <div className="min-w-0 flex-1">
+        <h3 className="truncate text-sm font-semibold text-white">
+          {job.jobTitle}
+        </h3>
+        <p className="mt-1 truncate text-xs text-zinc-500">
+          {job.companyName} • {job.jobLocation}
+          {job.remoteWork ? " (Remote)" : ""}
+        </p>
 
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            {salary ? (
-              <span className={PILL_CLASSES}>
-                <DollarSign className="size-3 text-zinc-500" />
-                {salary}
-              </span>
-            ) : null}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {salary ? (
             <span className={PILL_CLASSES}>
-              <Briefcase className="size-3 text-zinc-500" />
-              {job.jobType}
+              <DollarSign className="size-3 text-zinc-500" />
+              {salary}
             </span>
-            {isHot ? (
-              <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-500/15 px-2.5 py-1 text-xs font-medium text-amber-400">
-                <Zap className="size-3" />
-                Hot Job
-              </span>
-            ) : null}
-            {job.status === "expired" ? (
-              <span className="inline-flex items-center rounded-md bg-rose-500/15 px-2.5 py-1 text-xs font-medium text-rose-400">
-                Closed
-              </span>
-            ) : null}
-          </div>
+          ) : null}
+          <span className={PILL_CLASSES}>
+            <Briefcase className="size-3 text-zinc-500" />
+            {job.jobType}
+          </span>
+          {isHot ? (
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-500/15 px-2.5 py-1 text-xs font-medium text-amber-400">
+              <Zap className="size-3" />
+              Hot Job
+            </span>
+          ) : null}
+          {job.status === "expired" ? (
+            <span className="inline-flex items-center rounded-md bg-rose-500/15 px-2.5 py-1 text-xs font-medium text-rose-400">
+              Closed
+            </span>
+          ) : null}
         </div>
       </div>
+    </>
+  );
+
+  return (
+    <article className="relative rounded-xl border border-white/10 bg-zinc-900/60 p-4 transition-colors hover:border-white/20 hover:bg-zinc-900">
+      {job._id ? (
+        <Link
+          href={`/browse-jobs/${job._id}`}
+          className="flex gap-4 pr-7 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+        >
+          {content}
+        </Link>
+      ) : (
+        <div className="flex gap-4 pr-7">{content}</div>
+      )}
+      <button
+        type="button"
+        aria-label="Save job"
+        className="absolute right-4 top-4 rounded-md p-1.5 text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-300"
+      >
+        <Bookmark className="size-4" />
+      </button>
     </article>
   );
 }
@@ -140,44 +122,69 @@ async function BrowseJobsResults({
   searchParams: SearchParams;
 }) {
   const params = await searchParams;
-  const search = typeof params.search === "string" ? params.search.trim() : "";
+  const readParam = (key: string) => {
+    const value = params[key];
+    return typeof value === "string" ? value.trim() : "";
+  };
+  const search = readParam("search");
+  const selectedJobType = readParam("jobType") || "All";
+  const selectedJobCategory = readParam("jobCategory") || "All";
   const query = search ? new URLSearchParams({ search }).toString() : "";
   const raw = await getJobs(query).catch(() => null);
-  const jobs: Job[] = Array.isArray(raw) ? raw : [];
+  const allJobs: Job[] = Array.isArray(raw) ? raw : [];
+  const jobs = allJobs.filter(
+    (job) =>
+      (selectedJobType === "All" || job.jobType === selectedJobType) &&
+      (selectedJobCategory === "All" ||
+        job.jobCategory === selectedJobCategory),
+  );
+  const categories = Array.from(
+    new Set(
+      allJobs
+        .map((job) => job.jobCategory)
+        .filter((category) => category.length > 0),
+    ),
+  ).sort((a, b) => a.localeCompare(b));
+  const matchesCategory = (job: Job) =>
+    selectedJobCategory === "All" || job.jobCategory === selectedJobCategory;
+  const matchesType = (job: Job) =>
+    selectedJobType === "All" || job.jobType === selectedJobType;
+  const jobTypeOptions: FilterOption[] = [
+    { value: "All", count: allJobs.filter(matchesCategory).length },
+    ...JOB_TYPE_FILTERS.map((type) => ({
+      value: type as string,
+      count: allJobs.filter(
+        (job) => matchesCategory(job) && job.jobType === type,
+      ).length,
+    })),
+  ];
+  const categoryOptions: FilterOption[] = [
+    { value: "All", count: allJobs.filter(matchesType).length },
+    ...categories.map((category) => ({
+      value: category,
+      count: allJobs.filter(
+        (job) => matchesType(job) && job.jobCategory === category,
+      ).length,
+    })),
+  ];
+  if (!jobTypeOptions.some((option) => option.value === selectedJobType)) {
+    jobTypeOptions.push({ value: selectedJobType, count: 0 });
+  }
+  if (!categoryOptions.some((option) => option.value === selectedJobCategory)) {
+    categoryOptions.push({ value: selectedJobCategory, count: 0 });
+  }
 
   return (
     <div className="mt-6 grid items-start gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
       <aside className="lg:sticky lg:top-8">
         <div className="rounded-xl border border-white/10 bg-zinc-900/60 p-5">
           <h2 className="text-base font-semibold tracking-tight">Filters</h2>
-          <div className="mt-5">
-            <p className="text-sm font-medium text-zinc-300">Job Type</p>
-            <ul className="mt-3 flex flex-col gap-3">
-              {JOB_TYPE_FILTERS.map((type) => {
-                const count = jobs.filter((job) => job.jobType === type).length;
-                return (
-                  <li key={type}>
-                    {/* biome-ignore lint/a11y/noLabelWithoutControl: Checkbox renders a Base UI control inside the label */}
-                    <label className="group flex cursor-pointer items-center justify-between gap-3">
-                      <span className="flex items-center gap-2.5">
-                        <Checkbox
-                          defaultChecked={type === "Full-time"}
-                          aria-label={type}
-                          className="border-zinc-600 bg-zinc-950 data-checked:border-white data-checked:bg-white data-checked:text-zinc-950"
-                        />
-                        <span className="text-sm text-zinc-500 transition-colors group-has-[[data-checked]]:text-zinc-100">
-                          {type}
-                        </span>
-                      </span>
-                      <span className="text-xs tabular-nums text-zinc-600">
-                        {count}
-                      </span>
-                    </label>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
+          <JobFilters
+            jobTypes={jobTypeOptions}
+            categories={categoryOptions}
+            selectedJobType={selectedJobType}
+            selectedJobCategory={selectedJobCategory}
+          />
         </div>
       </aside>
 

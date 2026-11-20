@@ -21,13 +21,14 @@ const SearchBar = () => {
     const formData = new FormData(e.currentTarget);
     const field = formData.get("searchField");
     const search = typeof field === "string" ? field.trim() : "";
+    const params = new URLSearchParams(searchParams.toString());
     if (search) {
-      const params = new URLSearchParams();
       params.set("search", search);
-      router.push(`/browse-jobs?${params.toString()}`);
     } else {
-      router.push("/browse-jobs");
+      params.delete("search");
     }
+    const query = params.toString();
+    router.push(query ? `/browse-jobs?${query}` : "/browse-jobs");
   };
   return (
     <form
