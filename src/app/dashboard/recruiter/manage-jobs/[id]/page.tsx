@@ -28,22 +28,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { getJobById } from "@/lib/api/jobs";
-
-interface Job {
-  _id?: string;
-  jobTitle: string;
-  companyName: string;
-  jobCategory: string;
-  jobType: string;
-  remoteWork?: boolean;
-  jobLocation: string;
-  applicationDeadline?: string;
-  minSalary?: number;
-  maxSalary?: number;
-  frequency?: string;
-  responsibilities?: string;
-  qualifications?: string;
-}
+import type { Job } from "@/types";
 
 const CATEGORY_META: Record<string, { icon: typeof Code2; classes: string }> = {
   "Engineering & Tech": {

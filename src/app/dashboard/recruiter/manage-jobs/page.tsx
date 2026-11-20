@@ -27,24 +27,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getJobs } from "@/lib/api/jobs";
+import type { Job } from "@/types";
 import { JobActions } from "./job-actions";
-
-interface Job {
-  _id?: string;
-  jobTitle: string;
-  companyName: string;
-  jobCategory: string;
-  jobType: string;
-  remoteWork?: boolean;
-  jobLocation: string;
-  applicationDeadline?: string;
-  minSalary?: number;
-  maxSalary?: number;
-  frequency?: string;
-}
-
-const HARDCODED_APPLICANTS = [34, 18, 12, 27, 8, 21, 45, 9];
-const HARDCODED_STATUS = ["Active", "Active", "Active", "Active", "Expired"];
 
 const CATEGORY_META: Record<string, { icon: typeof Code2; classes: string }> = {
   "Engineering & Tech": {
@@ -153,9 +137,8 @@ const ManageJobsPage = async () => {
               const meta =
                 CATEGORY_META[job.jobCategory] ?? CATEGORY_META.Other;
               const Icon = meta.icon;
-              const status = HARDCODED_STATUS[index % HARDCODED_STATUS.length];
-              const applicants =
-                HARDCODED_APPLICANTS[index % HARDCODED_APPLICANTS.length];
+              const status = job.status;
+              const applicants = job.applicantCount;
               return (
                 <TableRow
                   key={job._id ?? `${job.jobTitle}-${index}`}
@@ -202,14 +185,14 @@ const ManageJobsPage = async () => {
                   <TableCell className="px-4 py-3">
                     <span
                       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
-                        status === "Active"
+                        status === "active"
                           ? "bg-emerald-500/10 text-emerald-400"
                           : "bg-zinc-500/10 text-zinc-400"
                       }`}
                     >
                       <span
                         className={`size-1.5 rounded-full ${
-                          status === "Active" ? "bg-emerald-400" : "bg-zinc-500"
+                          status === "active" ? "bg-emerald-400" : "bg-zinc-500"
                         }`}
                       />
                       {status}

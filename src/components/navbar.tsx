@@ -14,19 +14,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { signOut, useSession } from "@/lib/auth-client";
+import type { UserRole } from "@/types";
 
 const navLinks = [
   { label: "Browse Jobs", href: "#jobs" },
   { label: "Companies", href: "#companies" },
   { label: "Pricing", href: "#pricing" },
 ];
-type roleType = 'admin' | 'seeker' | 'recruiter'
 export function Navbar() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const { data: session, isPending } = useSession();
   const user = session?.user;
-  const role = user?.role as roleType
+  const role = user?.role as UserRole;
   async function handleLogout() {
     await signOut();
     router.push("/");
@@ -47,22 +47,21 @@ export function Navbar() {
         className="min-w-56 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-100 shadow-xl"
       >
         <div className="px-2 py-1.5">
-          <p className="truncate text-sm font-medium text-zinc-200">{user.name}</p>
+          <p className="truncate text-sm font-medium text-zinc-200">
+            {user.name}
+          </p>
           <p className="truncate text-xs text-zinc-400">{user.email}</p>
         </div>
 
         <DropdownMenuSeparator className="bg-zinc-800" />
 
-        <DropdownMenuItem
-
-          className="cursor-pointer "
-        >
+        <DropdownMenuItem className="cursor-pointer ">
           <Link
             href={`/dashboard/${role}`}
             className="flex items-center gap-2 w-full "
           >
             <LayoutDashboard />
-            <span >Dashboard</span>
+            <span>Dashboard</span>
           </Link>
         </DropdownMenuItem>
 
