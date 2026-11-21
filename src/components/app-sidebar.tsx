@@ -39,7 +39,7 @@ export function DashboardSidebar() {
       { title: "Saved Jobs", href: `/Saved-Jobs/seeker`, icon: LucideBookmark },
       {
         title: "Applications",
-        href: `/Applications/seeker`,
+        href: `/dashboard/seeker/applications`,
         icon: LucideFileText,
       },
       { title: "Billing", href: `/Billing/seeker`, icon: LucideCreditCard },

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,13 +34,15 @@ export default function SignUpPage() {
       setError("Password must be at least 8 characters long.");
       return;
     }
-
     setPending(true);
+    const searchParams = useSearchParams()
+    const redirectTo = searchParams.get('redirectTo') ?? '/'
     const { data, error: authError } = await authClient.signUp.email({
       name,
       email,
       password,
       role,
+      callbackURL: redirectTo
     });
     setPending(false);
 

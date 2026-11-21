@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +19,8 @@ export default function SignInPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirectTo') ?? '/'
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
@@ -29,9 +30,11 @@ export default function SignInPage() {
     const password = formData.get("password") as string;
 
     setPending(true);
+
     const { data, error: authError } = await signIn.email({
       email,
       password,
+      callbackURL: redirectTo,
     });
     setPending(false);
 
@@ -40,7 +43,7 @@ export default function SignInPage() {
       return;
     }
     console.log(data);
-    router.push("/");
+    router.push(redirectTo);
     router.refresh();
   }
 
