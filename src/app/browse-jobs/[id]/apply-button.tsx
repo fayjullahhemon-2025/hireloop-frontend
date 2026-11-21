@@ -6,6 +6,7 @@ import { toast } from "@/components/ui/toast";
 import { applyToAJob } from "@/lib/actions/applications";
 import { getApplcationsCount } from "@/lib/api/applications";
 import { getJobById } from "@/lib/api/jobs";
+import { getPremiumStatus } from "@/lib/api/payments";
 import { useSession } from "@/lib/auth-client";
 
 const FREE_APPLICATION_LIMIT = 5;
@@ -22,15 +23,18 @@ export function ApplyButton() {
     if (!user) {
       router.push(`/sign-in?redirectTo=/browse-jobs/${job?._id}`);
     } else if (user.role === "seeker") {
-      const { count } = await getApplcationsCount(user.id);
-      if (count >= FREE_APPLICATION_LIMIT) {
-        toast.add({
-          title: "Free applications limit reached",
-          description: "Upgrade to a plan to keep applying.",
-          type: "warning",
-        });
-        router.push("/payment");
-        return;
+      const { premium } = await getPremiumStatus(user.id as string);
+      if (!premium) {
+        const { count } = await getApplcationsCount(user.id);
+        if (count >= FREE_APPLICATION_LIMIT) {
+          toast.add({
+            title: "Free applications limit reached",
+            description: "Upgrade to a plan to keep applying.",
+            type: "warning",
+          });
+          router.push("/payment");
+          return;
+        }
       }
       const application = {
         jobId: job?._id as string,
@@ -47,6 +51,13 @@ export function ApplyButton() {
           type: "success",
         });
         router.push("/browse-jobs");
+      } else if (result.code === "FREE_LIMIT_REACHED") {
+        toast.add({
+          title: "Free applications limit reached",
+          description: "Upgrade to a plan to keep applying.",
+          type: "warning",
+        });
+        router.push("/payment");
       } else {
         toast.add({
           title: "Failed to submit application",

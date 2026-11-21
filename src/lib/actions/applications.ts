@@ -5,7 +5,9 @@ const BASE_URL =
 
 type ApplicationInput = Omit<Application, "_id">;
 
-export const applyToAJob = async (data: ApplicationInput) => {
+export const applyToAJob = async (
+  data: ApplicationInput,
+): Promise<{ success: boolean; code?: string; error?: string }> => {
   try {
     const res = await fetch(`${BASE_URL}/applications`, {
       method: "POST",
@@ -14,7 +16,14 @@ export const applyToAJob = async (data: ApplicationInput) => {
       },
       body: JSON.stringify(data),
     });
-    if (!res.ok) return { success: false };
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      return {
+        success: false,
+        code: body?.code,
+        error: body?.error,
+      };
+    }
     const result = await res.json();
     return {
       success: Boolean(

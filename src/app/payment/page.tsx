@@ -1,10 +1,9 @@
 "use client";
 
 import { Check, CreditCard, Lock, Sparkles } from "lucide-react";
+import { useState } from "react";
 import { Navbar } from "@/components/navbar";
-
-const STRIPE_PAYMENT_URL =
-  process.env.NEXT_PUBLIC_STRIPE_PAYMENT_URL ?? "/payment";
+import { toast } from "@/components/ui/toast";
 
 const PLAN = {
   name: "HireLoop Pro",
@@ -19,8 +18,32 @@ const PLAN = {
 } as const;
 
 export default function PaymentPage() {
-  const handlePay = () => {
-    window.location.href = STRIPE_PAYMENT_URL;
+  const [pending, setPending] = useState(false);
+
+  const handlePay = async () => {
+    if (pending) return;
+    setPending(true);
+    try {
+      const res = await fetch("/api/checkout_sessions", { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.url) {
+        toast.add({
+          title: "Could not start checkout",
+          description: data?.error || "Please try again.",
+          type: "error",
+        });
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      toast.add({
+        title: "Could not start checkout",
+        description: "Network error. Please try again.",
+        type: "error",
+      });
+    } finally {
+      setPending(false);
+    }
   };
 
   return (
@@ -69,10 +92,11 @@ export default function PaymentPage() {
           <button
             type="button"
             onClick={handlePay}
-            className="mt-8 flex w-full items-center justify-center gap-2 rounded-lg bg-violet-600 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-violet-500"
+            disabled={pending}
+            className="mt-8 flex w-full items-center justify-center gap-2 rounded-lg bg-violet-600 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <CreditCard className="size-4" />
-            Pay with Stripe
+            {pending ? "Redirecting…" : "Pay with Stripe"}
           </button>
 
           <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-zinc-500">
